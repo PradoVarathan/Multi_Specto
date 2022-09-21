@@ -1,0 +1,12 @@
+default:
+  input_files:
+    model_dict: /data0/research/home_back_up/ppugale/MultiSpecto/deepsea.beluga.pth 
+    primary_dataset: /data0/research/home_back_up/ppugale/MultiSpecto/IGAP_stage_1.txt
+    secondary_dataset: /data0/research/home_back_up/ppugale/MultiSpecto/IGAP_Chr19_Hg38loc.csv
+    n: 100
+  entrez_cred:
+    entrez_email: pradluzog@gmail.com
+    entrez_api: 98ad62666b4bd2dc831f1824727d74d67c08
+  output_files:
+    h5_folder: Major_Minor_Top_100
+    combination_distribution_folder: Neighbours_Distribution
