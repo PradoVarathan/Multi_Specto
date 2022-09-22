@@ -18,7 +18,12 @@ from tqdm import tqdm
 import yaml
 import pickle
 from pyfiglet import Figlet
-
+import sys
+from scipy.stats import pearsonr
+from matplotlib import pyplot as plt
+from matplotlib.patches import Rectangle
+import time
+from itertools import compress
 #Inputing the resources for Expect.py
 inputsize = 2000
 batchSize = 32
@@ -259,17 +264,17 @@ class SNP:
         t_snps = self.snps_in_window
         temp = dataset[dataset['MarkerName'].isin(t_snps)]
         temp_pos = temp['Position'] - self.position
-        plt.hist(temp_pos,bins=10, edgecolor="black")
-        plt.title(self.rsid + " Combinations Frequency with Total "+str(len(t_snps)))
-        plt.axvline(0, color="black", ls="--", label=self.rsid)
+        ax = plt.hist(temp_pos,bins=10, edgecolor="black")
+        ax.title(self.rsid + " Combinations Frequency with Total "+str(len(t_snps)))
+        ax.axvline(0, color="black", ls="--", label=self.rsid)
         out_name = str(cfc['output_files']['combination_distribution_folder']) + self.rsid + "_Combinations_Frequency_over_length.jpg"
-        plt.savefig(out_name)
+        ax.savefig(out_name)
         plt.clf()
                 
     def seq_combination(self,dataset,sign_num = 'null',window = 1000):
         self.check_ld_snps(dataset,window)
         self.obtain_snp_sequence(dataset)
-        self.plot_combinations_over_length(dataset)
+        #self.plot_combinations_over_length(dataset)
         self.combination_seq = self.obtain_all_comb_seq(dataset,sign_num,window)
         return self.combination_seq
         
@@ -278,7 +283,40 @@ class SNP:
         return "The SNP in object is "+self.rsid
         
         
-        
+def group_check(snp_feature_list,snp_comb_name_list):
+    snp_groups_bool = []
+    for k in snp_comb_name_list:
+        snp_groups_bool.append('_' not in k)
+    snp_groups_bool = sum(([ss]*2 for ss in snp_groups_bool),[])
+    group1 = snp_feature_list[snp_groups_bool]
+
+    # changed with absolute values but keep the sign
+    a = np.argmax(np.abs(group1),axis=0)
+    b = np.array(range(0,2002))
+    group1_overall = [group1[x][y] for x, y in zip(a,b)]
+
+ 
+    
+    group2_idxs = [not idx for idx in snp_groups_bool]
+    group2 = snp_feature_list[group2_idxs]
+    group2_sub = np.subtract(group1_overall,group2)
+    group2_ratio = np.divide(group2,group1_overall)
+
+    return group1,group2,group1_overall,group2_sub,group2_ratio,group2_idxs,snp_groups_bool
+
+
+def correlation_check(snp_feature_list, snp_comb_name_list):
+    
+    filtered_combs = []
+    for snp1 in range(0,len(snp_feature_list)):
+        for snp2 in range(0,len(snp_feature_list)):
+            corr,_ = pearsonr(snp_feature_list[snp1],snp_feature_list[snp2])
+            if -0.5 <= corr <= 0.5:
+                filtered_combs.append(snp1)
+                filtered_combs.append(snp2)
+    filtered_combs = list(set(filtered_combs))            
+    return filtered_combs        
+              
         
         
 
@@ -289,7 +327,7 @@ f = Figlet(font='slant')
 print(f.renderText('MultiSpecto Basic Run'))
 print(" --------  Expecto based model for top N snps from provided GWAS along with their neighoburs  --------")
 
-
+print("Loading summary statistic file..")
 Entrez.email  = str(cfc['entrez_cred']['entrez_email']) 
 Entrez.api_key = str(cfc['entrez_cred']['entrez_api']) 
 model = Beluga()
@@ -311,27 +349,73 @@ for index,row in top_100_igap_snps.iterrows():
     pos = pos.split(':')[1]
     top_100_igap_snps.loc[index,'Position'] = int(pos)
 
+## Obtaining features
+print("Loading feature info...")
+
+features = pd.read_csv(str(cfc['input_files']['features_info']), sep = '\t')
+features['feature_names'] = features['Cell type'] +'__'+ features['Assay']+'__'+ features['Assay type']
+features_ids_dnase = [features['Assay type']=='DNase']
+features_ids_tf = [features['Assay type']=='TF']
+features_ids_histone = [features['Assay type']=='Histone']
+feature_names = features['feature_names']
+
 
 #Running over top n snps
 freq_df = {}
+data_matrix_grp1 = {}
+data_matrix_grp2 = {}
+data_matrix_ind_snp = {}
+data_matrix_grp1_overall = {}
 for k in tqdm(range(0,len(top_100_igap_snps))):
     snp_test = top_100_igap_snps.iloc[k,2]
     if snp_test not in skip_snps:
         #print("Running %s ...."%(snp_test))
         snp_obj = SNP(top_100_igap_snps.iloc[k,2],top_100_igap_snps.iloc[k,1],top_100_igap_snps.iloc[k,0])
         #print("Obtaining combinations for %s ...."%(snp_test))
-        freq_df[snp_test] = len(snp_obj.check_ld_snps(igap_19))
+        freq_df[snp_test] = (len(snp_obj.check_ld_snps(igap_19)),'_'.join(snp_obj.check_ld_snps(igap_19)))
         snp_comb_seq = snp_obj.seq_combination(igap_19)
         #print("Predicting the sequence profiles for %s ...."%(snp_test))
         comb_diff_pred = get_predicted_diff(snp_comb_seq)
-        f = h5py.File(str(cfc['output_files']['h5_folder']) + snp_test +'.diff.h5', 'w')
+        f = h5py.File(str(cfc['output_files']['h5_folder'])+'/' + snp_test +'.diff.h5', 'w')
         key_names = list(comb_diff_pred.keys())
         #print("Saving the result for %s"%(snp_test))
         for i in key_names:
             f.create_dataset(i, data=comb_diff_pred[i])
         f.close()
-        #print()  
- pd.DataFrame.from_dict(freq_df,orient='index').to_csv(str(cfc['output_files']['combination_distribution_folder'])+'Freq_neighbouring.csv')
+        f_name = str(cfc['output_files']['h5_folder'])+'/' + snp_test +'.diff.h5'
+        f = h5py.File(f_name,'r+')  
+        combs_keys = list(f.keys())
+        snp_list = np.zeros((len(combs_keys)*2,2002))
+        for i in range(0,2*len(combs_keys),2):
+            snp_list[i,:] = f[combs_keys[int(i/2)]][()][0,:]
+            snp_list[i+1,:] = f[combs_keys[int(i/2)]][()][0,:]
+        t_name =snp_test
+        # Am I running with the threshold combination or not?
+        snp_vals,comb_vals,group1,met2_sub,met2_ratio,idd,snp_groups_bool = group_check(snp_list,combs_keys)      
+        data_matrix_grp1[t_name] = {'data': group1,'ylabels':list(feature_names)}
+        xlabs = key_names
+        xlabs = [[x]*2 for x in xlabs]
+        xlabs =  [item for sublist in xlabs for item in sublist]
+        iddx = [idd[i] for i in range(0,len(idd),2)]
+        xlabels = [key_names[i] for i in range(0,len(iddx)) if iddx[i]]
+        xlabels = sum(([ss]*2 for ss in xlabels),[])
+        snp_groups_bool = [snp_groups_bool[x] for x in range(0,len(snp_groups_bool),2)]
+        xlabels = [combs_keys[x] for x in range(0,len(snp_groups_bool)) if not snp_groups_bool[x]]
+        xlabels = sum(([ss]*2 for ss in xlabels),[])
+        data_matrix_grp2[t_name] = {'data': comb_vals,'ylabels':xlabels, 'xlabels':list(feature_names)}
+        xlabels = [combs_keys[x] for x in range(0,len(snp_groups_bool)) if snp_groups_bool[x]]
+        xlabels = sum(([ss]*2 for ss in xlabels),[])
+        data_matrix_ind_snp[t_name] = {'data':snp_vals,'xlabels':list(xlabels)}
+
+
+with open(str(cfc['output_files']['h5_folder'])+'/'+'DataMatrixGrp2.pickle', 'wb') as file:
+    pickle.dump(data_matrix_grp2, file, protocol=pickle.HIGHEST_PROTOCOL)
+with open(str(cfc['output_files']['h5_folder'])+'/'+'DataMatrixGrp1.pickle', 'wb') as file:
+    pickle.dump(data_matrix_grp1, file, protocol=pickle.HIGHEST_PROTOCOL)
+with open(str(cfc['output_files']['h5_folder'])+'/'+'DataMatrixOg.pickle','wb') as file:
+    pickle.dump(data_matrix_ind_snp,file, protocol=pickle.HIGHEST_PROTOCOL)
+    
+pd.DataFrame.from_dict(freq_df,orient='index').to_csv(str(cfc['output_files']['combination_distribution_folder'])+'/Freq_neighbouring.csv')
 
 f = Figlet(font='crawford')
 print(f.renderText('MultiSpecto Completed'))

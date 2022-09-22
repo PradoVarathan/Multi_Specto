@@ -4,6 +4,7 @@ default:
     primary_dataset: /data0/research/home_back_up/ppugale/MultiSpecto/IGAP_stage_1.txt
     secondary_dataset: /data0/research/home_back_up/ppugale/MultiSpecto/IGAP_Chr19_Hg38loc.csv
     n: 100
+    features_info: /data0/research/home_back_up/ppugale/MultiSpecto/deepsea_beluga_2002_features.tsv.txt
   entrez_cred:
     entrez_email: pradluzog@gmail.com
     entrez_api: 98ad62666b4bd2dc831f1824727d74d67c08
