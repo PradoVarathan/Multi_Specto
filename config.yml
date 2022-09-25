@@ -1,0 +1,8 @@
+default:
+  plot_dist_funcs : false
+  use_hap_combs : true
+  result_df : "~/OneDrive - Indiana University/Documents/MultiSpecto/Major_Minor_Top100/HaplotypeCombinations.csv"
+  grp1_sub : "~/OneDrive - Indiana University/Documents/MultiSpecto/Major_Minor_Top100/DataMatrixGrp1.pickle"
+  grp2_whole: "~/OneDrive - Indiana University/Documents/MultiSpecto/DataMatrixGrp2.pickle"
+  originalsnp: "~/OneDrive - Indiana University/Documents/MultiSpecto/Major_Minor_Top100/DataMatrixOg.pickle"
+  output_dir : "~/Documents/Heatmaps_Top_100/Grp2_Grp1_MajorMinor_Top100/"
