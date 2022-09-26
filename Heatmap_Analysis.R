@@ -692,6 +692,50 @@ for (snp_name in main_snps_top_100_filt){
   
 }
 
+if(make_all_ind){
+        # Creating heatmap of all individual SNPs ---------------------------------
+  rg <- max(abs(grp1_all_ind_mtx))
+  #temp change in max
+  rg = 1.5
+  row_names_heat = c()
+  for(i in 1:length(rownames(grp1_all_ind_mtx))){
+    if(i%%2 == 0){
+      row_names_heat = c(row_names_heat,'')
+    }else{
+      row_names_heat = c(row_names_heat,as.character(strsplit(rownames(grp1_all_ind_mtx)[i],"[_]")[[1]][1]))
+    }
+  }
+  hist(colSums(abs(grp1_all_ind_mtx)),bins = 500)
+  threshold_set = 1
+  colmaxese = c()
+  for(r in 1:ncol(grp1_all_ind_mtx)){
+    temp = max(abs(grp1_all_ind_mtx[,r]))
+    colmaxese = c(colmaxese,temp)
+  }
+  idx_threshold = colmaxese > 1
+  new_feat_cols_names_cell = c()
+  new_feat_cols_names_feat = c()
+  for(n in new_feat_cols_names){
+    temp = strsplit(n,'[_]')[[1]]
+    new_feat_cols_names_feat = c(new_feat_cols_names_feat,temp[length(temp)])
+    new_feat_cols_names_cell = c(new_feat_cols_names_cell,paste0(temp[1:length(temp)-1],collapse = '_'))
+  }
+  annotation_col = data.frame("labels" = colnames(grp1_all_ind_mtx)[idx_threshold],
+                              "Features" = new_feat_cols_names_feat[idx_threshold],
+                              "Cell Types" = new_feat_cols_names_cell[idx_threshold])
+  rownames(annotation_col) = annotation_col$labels
+  annotation_col$labels = NULL
+  annotation_col$Features = NULL
+  plot_file_path=paste0(output_dir,'Heatmap_of_all_Individual_SNP.png')
+  k_all = pheatmap::pheatmap(t(grp1_all_ind_mtx[,idx_threshold])
+                             ,labels_col  = row_names_heat, labels_row  =new_feat_cols_names_feat[idx_threshold],legend = TRUE, breaks = seq(-rg, rg, length.out = 100)
+                             ,cutree_cols = 4,fontsize_col  = 7.5,fontsize_row = 7.5,fontsize = 11,annotation_row = annotation_col,annotation_legend = TRUE,cluster_cols = F,
+                             main = "Heatmap of all Individual SNPs pass threshold",color = color,silent = T) 
+  ggsave(filename = plot_file_path, plot = k_3, width=25, height=12, units = "in", scale = 1, dpi = 1200)
+  if(!is.null(dev.list())) dev.off()
+  gc()
+}
+
 
 
 
