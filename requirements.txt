@@ -1,1 +1,16 @@
 biopython 
+pandas
+numpy
+os
+argparse
+math
+ixmltodict
+pprint
+torch
+h5py
+seaborn
+matplotlib
+cipy.stats
+time
+pickle
+tqdm  
