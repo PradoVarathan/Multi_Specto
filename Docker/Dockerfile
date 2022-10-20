@@ -29,5 +29,5 @@ RUN pip install biopython &&\
     
 RUN pip install torch --no-cache-dir
 
-CMD ["python", "/Input/Multi_Specto/test_run.py"]
+CMD ["python", "/Input/Multi_Specto/E_Value_Parallelized_Generator.py"]
 
