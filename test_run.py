@@ -21,9 +21,9 @@ from tqdm import tqdm
       
 if __name__ == '__main__':
   trial_run = 10000
-  summarystat = '/Input/Random_Million_SNPs_Part3.txt'
-  args_model = '/Input/deepsea.beluga.pth'
-  features = '/Input/deepsea_beluga_2002_features.tsv.txt'
+  summarystat = '/Input/Multi_Specto/Random_Million_SNPs_Part3.txt'
+  args_model = '/Input/Multi_Specto/deepsea.beluga.pth'
+  features = '/Input/Multi_Specto/deepsea_beluga_2002_features.tsv.txt'
   numsnps = 1000
   randomset = True
   ## Filtering the top N snps
