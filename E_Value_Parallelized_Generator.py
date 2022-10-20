@@ -5,11 +5,7 @@ import numpy as np
 import Bio
 import os
 from Bio import Entrez, SeqIO
-import itertools
-import argparse
 import math
-import xmltodict
-from pprint import pprint
 import torch
 from torch import nn
 import h5py
@@ -19,7 +15,6 @@ from scipy.stats import pearsonr
 from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 import time
-from itertools import compress
 import pickle
 from tqdm import tqdm 
 
