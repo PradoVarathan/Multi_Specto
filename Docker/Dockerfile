@@ -15,6 +15,7 @@ RUN git clone https://github.com/PradoVarathan/Multi_Specto
 RUN cd /Input/Multi_Specto/
 RUN wget http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
 RUN gunzip hg38.fa.gz 
+RUN mv /Input/hg38.fa /Input/Multi_Specto/
 
 RUN python -m pip install --upgrade pip
 RUN pip install biopython &&\
@@ -29,5 +30,4 @@ RUN pip install biopython &&\
     
 RUN pip install torch --no-cache-dir
 
-CMD ["python", "/Input/Multi_Specto/E_Value_Parallelized_Generator.py"]
-
+CMD ["python", "/Input/Multi_Specto/E_value_parallel.py"]

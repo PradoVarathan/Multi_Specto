@@ -418,7 +418,7 @@ if __name__ == '__main__':
 
   with_parallelization_time()
   import pickle
-  with open('10k_SNPs_Parallelization_Output_Check.pickle', 'wb') as f:
+  with open('/Output/10k_SNPs_Parallelization_Output_Check.pickle', 'wb') as f:
     pickle.dump(data_matrix_ind_snp_p, f)
   print("Completed")
 
