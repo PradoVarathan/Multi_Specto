@@ -375,7 +375,6 @@ if __name__ == '__main__':
   summarystat = 'Random_Million_SNPs_Part3.txt'
   args_model = 'deepsea.beluga.pth'
   features = 'deepsea_beluga_2002_features.tsv.txt'
-  numsnps = 1000
   randomset = True
   ## Filtering the top N snps
   print("Loading random SNPs chromosome and position..")
@@ -409,7 +408,7 @@ if __name__ == '__main__':
   
   print("Loading Fasta sequence ...")
   fasta_available = True
-  fasta_whole_genome = SeqIO.to_dict(SeqIO.parse("Hg38/hg38.fa","fasta"))
+  fasta_whole_genome = SeqIO.to_dict(SeqIO.parse("/Input/Multi_Specto/hg38.fa","fasta"))
   import multiprocessing
   import time
   data_matrix_ind_snp_p = {}

@@ -3,7 +3,7 @@ FROM python:3.6.13
 RUN apt-get update -y && apt-get -y install apt-file && apt-get install -y python3-dev build-essential
 RUN apt-get -y install git
 
-RUN apt-get install git-lfs
+RUN apt-get install git-lfs && apt-get install wget
 
 RUN mkdir /Output
 RUN mkdir /Input
@@ -13,6 +13,8 @@ RUN cd /Input
 RUN git clone https://github.com/PradoVarathan/Multi_Specto
 
 RUN cd /Input/Multi_Specto/
+RUN wget http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
+RUN gunzip hg38.fa.gz 
 
 RUN python -m pip install --upgrade pip
 RUN pip install biopython &&\
