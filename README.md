@@ -19,6 +19,8 @@ This repository contains all the code used in the process for the above mentione
   source env_name/bin/activate
   pip install -r requirements.txt
   ```
+  * Docker functionality is available as well but direct installtion is recommended since there has been issues with the contained wrapping in R functionalities for downstream analysis.
+* Visit the NCBI website (https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/) to obtain the fasta sequence for Hg38 genome assembly and store it in the working directory under Hg38/hg38.fa
 * Edit the MultiSpecto_Run.yml file for preparing the run for all combinations.
   ```
   default:
@@ -37,6 +39,7 @@ This repository contains all the code used in the process for the above mentione
   ```
 * MultiSpecto_Run.py 
   This file is a python executable file requring a config file for documenting the path and output file names for the analysis. Please feel free to download the config file and make the necessary changes.
+* For post analysis, we have developed few R functionalities to use the pickle file from the above run to plot heatmaps and distributions to discuss results as seen in paper.
 
   ```
   python MultiSpecto_Run.py MultiSpecto_Run.yml
