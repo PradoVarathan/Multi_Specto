@@ -1,0 +1,8 @@
+default:
+  plot_dist_funcs : false
+  use_hap_combs : true
+  result_df : "HaplotypeCombinations.csv"
+  grp1_sub : "DataMatrixGrp1.pickle"
+  grp2_whole: "DataMatrixGrp2.pickle"
+  originalsnp: "DataMatrixOg.pickle"
+  output_dir : "Grp2_Grp1_MajorMinor_Top100/"
