@@ -39,9 +39,15 @@ This repository contains all the code used in the process for the above mentione
   ```
 * MultiSpecto_Run.py 
   This file is a python executable file requring a config file for documenting the path and output file names for the analysis. Please feel free to download the config file and make the necessary changes.
-* For post analysis, we have developed few R functionalities to use the pickle file from the above run to plot heatmaps and distributions to discuss results as seen in paper.
-
-  ```
+    ```
   python MultiSpecto_Run.py MultiSpecto_Run.yml
   ```
+    
+* For post analysis, we have developed few R functionalities to use the pickle file from the above run to plot heatmaps and distributions to discuss results as seen in paper.
+  * Similar to the config file above, use the config.yml as template and run the Heatmap Analysis R file as follows
+    ```
+    R Heatmap_Analysis.R config.yml
+    ```
+
+
   
